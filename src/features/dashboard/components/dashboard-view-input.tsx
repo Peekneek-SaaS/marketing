@@ -1,21 +1,12 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -36,6 +27,7 @@ export default function DashboardViewInput() {
   );
   return (
     <div className="flex flex-col justify-center items-center min-h-0 px-2 flex-1">
+      <h1 className="text-xl py-3">Dashboard View Input</h1>
       <Card className="w-full max-w-md">
         <CardContent>
           {inputType === DashboardViewInputType.URL && <UrlInput />}
@@ -108,6 +100,10 @@ export default function DashboardViewInput() {
           </div>
         </CardFooter>
       </Card>
+      <p className="text-[10px] text-muted-foreground py-3">
+        <span className="font-bold">Note:</span> The input will be processed and
+        displayed in the dashboard view.
+      </p>
     </div>
   );
 }
