@@ -10,19 +10,10 @@ import {
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
-  SidebarTrigger,
   SidebarMenuButton,
-  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import {
-  HelpCircleIcon,
-  LogOutIcon,
-  MoveDiagonalIcon,
-  PanelLeftIcon,
-  PlusIcon,
-  type LucideIcon,
-} from "lucide-react";
+import { MoveDiagonalIcon, PlusIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
