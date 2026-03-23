@@ -1,6 +1,5 @@
 "use client";
 
-import { buttonVariants } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -13,7 +12,9 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { MoveDiagonalIcon, PlusIcon, type LucideIcon } from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { useQuery } from "@tanstack/react-query";
+import { PackageIcon, PlusIcon, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,20 +29,22 @@ interface DashboardSidebarMenuGroup {
   label?: string;
   items: DashboardSidebarMenuItem[];
   pathname: string;
+  className?: string;
 }
 
 function DashboardSidebarContent({
   label,
   items,
   pathname,
+  className,
 }: DashboardSidebarMenuGroup) {
   return (
-    <SidebarGroup>
+    <SidebarGroup className={className}>
       {label && <SidebarGroupLabel>{label}</SidebarGroupLabel>}
       <SidebarGroupContent>
         <SidebarMenu className="flex flex-col gap-2">
-          {items.map((item) => (
-            <SidebarMenuItem key={item.title}>
+          {items.map((item, _index) => (
+            <SidebarMenuItem key={_index}>
               <SidebarMenuButton
                 onClick={item.onClick}
                 asChild={!!item.href}
@@ -76,19 +79,14 @@ function DashboardSidebarContent({
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const trpc = useTRPC();
+  const { data } = useQuery(trpc.getAllProducts.queryOptions());
 
   const dashboardSidebarMenuItems: DashboardSidebarMenuItem[] = [
     {
       title: "New Project",
       icon: PlusIcon,
       href: "/",
-    },
-    {
-      title: "Modal",
-      icon: MoveDiagonalIcon,
-      onClick: () => {
-        console.log("Modal");
-      },
     },
   ];
 
@@ -136,9 +134,17 @@ export default function DashboardSidebar() {
           pathname={pathname}
         />
         <DashboardSidebarContent
+          key={data?.products.map((product) => product.id).join(",")}
           label="Your Projects"
-          items={dashboardSidebarMenuItems}
+          items={
+            data?.products.map((product) => ({
+              title: product.brand || "Untitled",
+              icon: PackageIcon,
+              href: `/p/${product.id}`,
+            })) || []
+          }
           pathname={pathname}
+          className="group-data-[collapsible=icon]:hidden"
         />
       </SidebarContent>
     </Sidebar>

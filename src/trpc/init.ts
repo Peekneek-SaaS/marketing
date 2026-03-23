@@ -25,7 +25,7 @@ export const createTRPCRouter = t.router;
 export const createCallerFactory = t.createCallerFactory;
 export const baseProcedure = t.procedure;
 export const protectedProcedure = t.procedure.use(async ({ ctx, next }) => {
-  const userId = true;
+  const userId = "dfs";
   if (!userId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }

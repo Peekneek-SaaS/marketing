@@ -2,12 +2,7 @@ import DashboardViewInput from "@/features/dashboard/components/dashboard-view-i
 import DashboardHeader from "@/features/dashboard/components/dasboard-header";
 
 function DashboardView() {
-  return (
-    <>
-      <DashboardHeader />
-      <DashboardViewInput />
-    </>
-  );
+  return <DashboardViewInput />;
 }
 
 export default DashboardView;

@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import UrlInput from "./url-input";
 import { FileIcon, LinkIcon, PencilIcon, SendIcon } from "lucide-react";
+import { useTRPC } from "@/trpc/client";
+import { useMutation } from "@tanstack/react-query";
+import Router, { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 enum DashboardViewInputType {
   URL = "url",
@@ -22,9 +26,24 @@ enum DashboardViewInputType {
 }
 
 export default function DashboardViewInput() {
+  const router = useRouter();
+  const trpc = useTRPC();
+
   const [inputType, setInputType] = useState<DashboardViewInputType>(
     DashboardViewInputType.URL,
   );
+  const scrapeUrl = useMutation(
+    trpc.scrapeUrl.mutationOptions({
+      onSuccess: (data) => {
+        toast.success("Scraping job queued...");
+        router.push(`/p/${data.productId}`);
+      },
+      onError: (error) => {
+        toast.error("Failed to scrape product");
+      },
+    }),
+  );
+
   return (
     <div className="flex flex-col justify-center items-center min-h-0 px-2 flex-1">
       <h1 className="text-xl py-3">Dashboard View Input</h1>
@@ -94,6 +113,18 @@ export default function DashboardViewInput() {
                     ? "manual-input-form"
                     : "csv-input-form"
               }
+              onClick={() => {
+                if (inputType === DashboardViewInputType.URL) {
+                  scrapeUrl.mutate({
+                    url: "https://a.co/d/095v3IhD",
+                  });
+                } else if (inputType === DashboardViewInputType.MANUAL) {
+                  console.log("Manual input");
+                } else {
+                  console.log("CSV input");
+                }
+              }}
+              disabled={scrapeUrl.isPending}
             >
               <SendIcon className="size-3" />
             </Button>

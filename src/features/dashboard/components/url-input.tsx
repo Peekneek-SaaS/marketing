@@ -6,10 +6,8 @@ import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
-
-const urlInputSchema = z.object({
-  url: z.url("URL is required"),
-});
+import { firecrawl } from "@/lib/firecrawl";
+import { urlInputSchema } from "@/schema/url-input-schema";
 
 export default function UrlInput() {
   const form = useForm({
@@ -20,7 +18,7 @@ export default function UrlInput() {
       onSubmit: urlInputSchema,
     },
     onSubmit: async ({ value }) => {
-      alert("You submitted the following values " + value.url);
+      console.log(value);
     },
   });
 
