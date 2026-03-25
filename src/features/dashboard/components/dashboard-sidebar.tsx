@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +15,12 @@ import {
 import { cn } from "@/lib/utils";
 import { useTRPC } from "@/trpc/client";
 import { useQuery } from "@tanstack/react-query";
-import { PackageIcon, PlusIcon, type LucideIcon } from "lucide-react";
+import {
+  PackageIcon,
+  PlusIcon,
+  TrashIcon,
+  type LucideIcon,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -30,6 +36,7 @@ interface DashboardSidebarMenuGroup {
   items: DashboardSidebarMenuItem[];
   pathname: string;
   className?: string;
+  onDelete?: (productId: string) => void;
 }
 
 function DashboardSidebarContent({
@@ -37,6 +44,7 @@ function DashboardSidebarContent({
   items,
   pathname,
   className,
+  onDelete,
 }: DashboardSidebarMenuGroup) {
   return (
     <SidebarGroup className={className}>
@@ -45,30 +53,43 @@ function DashboardSidebarContent({
         <SidebarMenu className="flex flex-col gap-2">
           {items.map((item, _index) => (
             <SidebarMenuItem key={_index}>
-              <SidebarMenuButton
-                onClick={item.onClick}
-                asChild={!!item.href}
-                tooltip={item.title}
-                isActive={
-                  item.href
-                    ? item.href === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.href)
-                    : false
-                }
-              >
-                {item.href ? (
-                  <Link href={item.href} className={cn("")}>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </Link>
-                ) : (
-                  <>
-                    <item.icon />
-                    <span>{item.title}</span>
-                  </>
+              <div className="flex items-center justify-between w-full">
+                <SidebarMenuButton
+                  onClick={item.onClick}
+                  asChild={!!item.href}
+                  tooltip={item.title}
+                  isActive={
+                    item.href
+                      ? item.href === "/"
+                        ? pathname === "/"
+                        : pathname.startsWith(item.href)
+                      : false
+                  }
+                  className="group"
+                >
+                  {item.href ? (
+                    <Link href={item.href} className={cn("")}>
+                      <item.icon />
+                      <span>{item.title} </span>
+                    </Link>
+                  ) : (
+                    <>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </>
+                  )}
+                </SidebarMenuButton>
+                {onDelete && (
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => console.log("item")}
+                    className="bg-transparent"
+                  >
+                    <TrashIcon />
+                  </Button>
                 )}
-              </SidebarMenuButton>
+              </div>
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
@@ -93,10 +114,10 @@ export default function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center justify-between ">
+        <div className="flex items-center justify-start gap-2">
           <svg
-            width="50"
-            height="50"
+            width="24"
+            height="24"
             viewBox="0 0 40 40"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -126,6 +147,13 @@ export default function DashboardSidebar() {
               fill="#00E7B9"
             ></path>
           </svg>
+          <span
+            className={cn(
+              "text-2xl font-bold group-data-[collapsible=icon]:hidden",
+            )}
+          >
+            Dashboard
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -145,6 +173,7 @@ export default function DashboardSidebar() {
           }
           pathname={pathname}
           className="group-data-[collapsible=icon]:hidden"
+          onDelete={() => {}}
         />
       </SidebarContent>
     </Sidebar>
