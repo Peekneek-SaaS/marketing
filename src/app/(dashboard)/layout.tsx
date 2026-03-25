@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import DashboardHeader from "@/features/dashboard/components/dasboard-header";
 import { HydrateClient, prefetch, trpc } from "@/trpc/server";
 import { ErrorBoundary } from "react-error-boundary";
+import { auth } from "@clerk/nextjs/server";
+import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
   children,
@@ -15,6 +17,11 @@ export default async function DashboardLayout({
   const defaultOpen = cookieStore.get("sidebar_state")?.value === "true";
 
   prefetch(trpc.getAllProducts.queryOptions());
+
+  const { userId } = await auth();
+  if (!userId) {
+    redirect("/sign-in");
+  }
 
   return (
     <SidebarProvider defaultOpen={defaultOpen}>

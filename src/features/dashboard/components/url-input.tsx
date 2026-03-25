@@ -9,7 +9,11 @@ import { useQuery } from "@tanstack/react-query";
 import { firecrawl } from "@/lib/firecrawl";
 import { urlInputSchema } from "@/schema/url-input-schema";
 
-export default function UrlInput() {
+interface UrlInputProps {
+  onSubmitUrl: (url: string) => void;
+}
+
+export default function UrlInput({ onSubmitUrl }: UrlInputProps) {
   const form = useForm({
     defaultValues: {
       url: "",
@@ -18,7 +22,7 @@ export default function UrlInput() {
       onSubmit: urlInputSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log(value);
+      onSubmitUrl(value.url);
     },
   });
 
@@ -46,7 +50,7 @@ export default function UrlInput() {
                 aria-invalid={isInvalid}
                 placeholder="Paste a valid url..."
                 autoComplete="off"
-                className="border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none h-full w-full"
+                className="border-none shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none h-full w-full bg-transparent dark:bg-transparent"
               />
               {isInvalid && <FieldError errors={field.state.meta.errors} />}
             </Field>

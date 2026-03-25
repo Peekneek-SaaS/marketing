@@ -46,10 +46,22 @@ export default function DashboardViewInput() {
 
   return (
     <div className="flex flex-col justify-center items-center min-h-0 px-2 flex-1">
-      <h1 className="text-xl py-3">Dashboard View Input</h1>
+      <h1 className="text-xl py-4">
+        {inputType === DashboardViewInputType.URL
+          ? "Paste a valid URL..."
+          : inputType === DashboardViewInputType.MANUAL
+            ? "Enter product details manually"
+            : "Upload a CSV file"}
+      </h1>
       <Card className="w-full max-w-md">
         <CardContent>
-          {inputType === DashboardViewInputType.URL && <UrlInput />}
+          {inputType === DashboardViewInputType.URL && (
+            <UrlInput
+              onSubmitUrl={(url) => {
+                scrapeUrl.mutate({ url });
+              }}
+            />
+          )}
         </CardContent>
         <CardFooter className="bg-transparent border-t-0 pt-0">
           <div className="flex justify-between w-full">
@@ -113,17 +125,6 @@ export default function DashboardViewInput() {
                     ? "manual-input-form"
                     : "csv-input-form"
               }
-              onClick={() => {
-                if (inputType === DashboardViewInputType.URL) {
-                  scrapeUrl.mutate({
-                    url: "https://a.co/d/095v3IhD",
-                  });
-                } else if (inputType === DashboardViewInputType.MANUAL) {
-                  console.log("Manual input");
-                } else {
-                  console.log("CSV input");
-                }
-              }}
               disabled={scrapeUrl.isPending}
             >
               <SendIcon className="size-3" />

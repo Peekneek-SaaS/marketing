@@ -12,11 +12,19 @@ datasource db {
   provider = "postgresql"
 }
 
+enum ProductStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User { 
   id    String     @id @default(cuid()) 
-  email String  @unique
+  userId String @unique
+
   name  String?
-  
+  email String  
+
   products Product[]
 
   createdAt DateTime @default(now())
@@ -35,9 +43,10 @@ model Product {
   features String[]
   benefits String[]
   images String[]
+  status ProductStatus @default(PENDING)
 
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  productId String
+  user User @relation(fields: [productId], references: [userId])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
