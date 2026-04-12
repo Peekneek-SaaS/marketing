@@ -7,7 +7,7 @@ import { auth } from "@clerk/nextjs/server";
  */
 export const createTRPCContext = async (opts: { headers: Headers }) => {
   // const user = await auth(opts.headers);
-  return { userId: "user_123" };
+  return {};
 };
 // Avoid exporting the entire t-object
 // since it's not very descriptive.

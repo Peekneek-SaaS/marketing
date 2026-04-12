@@ -6,7 +6,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { TRPCReactProvider } from "@/trpc/client";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/theme-provider";
-import SettingsModal from "@/modals/settings-modal";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,22 +31,20 @@ export default function RootLayout({
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
-        <ClerkProvider afterSignOutUrl="/">
+      <body className="min-w-0 min-h-0">
+        <ClerkProvider>
           <TRPCReactProvider>
             <TooltipProvider>
               <ThemeProvider
                 attribute="class"
-                defaultTheme="system"
-                enableSystem
+                defaultTheme="light"
                 disableTransitionOnChange
               >
                 {children}
-                <SettingsModal />
               </ThemeProvider>
             </TooltipProvider>
           </TRPCReactProvider>
-          <Toaster />
+          <Toaster position="top-center" richColors />
         </ClerkProvider>
       </body>
     </html>
