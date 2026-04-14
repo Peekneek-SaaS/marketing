@@ -1,11 +1,13 @@
-import { z } from "zod";
-import { baseProcedure, createTRPCRouter, protectedProcedure } from "../init";
-import { inngest } from "@/inngest/client";
-import prisma from "@/lib/prisma";
-import { TRPCError } from "@trpc/server";
-import { redirect } from "next/navigation";
+import { baseProcedure, createTRPCRouter } from "../init";
+import { crawlRouter } from "./crawl";
+import { websiteRouter } from "./website";
+import { userRouter } from "./user";
 
-export const appRouter = createTRPCRouter({});
+export const appRouter = createTRPCRouter({
+  crawl: crawlRouter,
+  website: websiteRouter,
+  user: userRouter,
+});
 
 // export type definition of API
 export type AppRouter = typeof appRouter;

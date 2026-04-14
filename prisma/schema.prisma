@@ -12,42 +12,126 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ProductStatus {
-  PENDING
-  APPROVED
-  REJECTED
+
+model User {
+  id               String    @id @default(cuid())
+  userId String @unique
+  email            String    @unique
+  firstName        String?
+  lastName         String?
+  imageUrl         String?
+
+  websites         Website[]
+  crawls           Crawl[]
+
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
-model User { 
-  id    String     @id @default(cuid()) 
-  userId String @unique
+model Website {
+  id        String   @id @default(cuid())
+  url       String
+  name      String?  
+  favicon   String?  
 
-  name  String?
-  email String  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  products Product[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-} 
-
-model Product {
-  id    String     @id @default(cuid())
-  url String
-
-  title String
-  description String?
-  price String
-  brand String?
-  category String?
-  features String[]
-  benefits String[]
-  images String[]
-  status ProductStatus @default(PENDING)
-
-  productId String
-  user User @relation(fields: [productId], references: [userId])
+ crawls    Crawl[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([userId, url])
+}
+
+model Crawl {
+  id              String    @id @default(cuid())
+
+  // What was crawled
+  url             String    // the URL entered by user
+  mode            String    // exact | path | domain | subdomain | domain-subdomains
+
+  // Crawl options
+  checkExternal   Boolean   @default(false)
+  followRedirects Boolean   @default(false)
+  maxPages        Int       @default(1)
+
+  // Status
+  status          String    @default("pending") // pending | running | done | failed
+
+  // Summary (populated when done)
+  totalLinks      Int       @default(0)
+  brokenLinks     Int       @default(0)
+  workingLinks    Int       @default(0)
+  redirectLinks   Int       @default(0)
+  externalLinks   Int       @default(0)
+
+  // Timing
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  durationMs      Int?      // total crawl time in ms
+
+  // Relations
+  userId          String?   // null if anonymous
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  websiteId       String?   // null if not saved to dashboard
+  website         Website?  @relation(fields: [websiteId], references: [id], onDelete: SetNull)
+
+  links           Link[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Link {
+  id           String   @id @default(cuid())
+
+  // The link itself
+  url          String   // the link URL
+  parentUrl    String?  // which page this link was found on
+
+  // Result
+  status       Int?     // 200, 301, 404, 500 etc. null if timeout
+  redirectedTo String?  // if 301/302, where it redirected to
+  responseTime Int?     // in milliseconds
+  error        String?  // "timeout" | "network error" | etc
+
+  // Type
+  isExternal   Boolean  @default(false) // is this an external link?
+  isRedirect   Boolean  @default(false) // is this a redirect?
+  isBroken     Boolean  @default(false) // is this broken (400+)?
+
+  // Relation
+  crawlId      String
+  crawl        Crawl    @relation(fields: [crawlId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+
+  @@index([crawlId])            // fast lookup by crawl
+  @@index([crawlId, isBroken])  // fast lookup for broken links only
+  @@index([crawlId, isExternal]) // fast lookup for external links only
+}
+
+model AutoCrawl {
+  id        String   @id @default(cuid())
+
+  websiteId String
+  userId    String
+
+  mode      String   // exact | path | domain | subdomain | domain-subdomains
+  frequency String   // weekly | daily
+
+  checkExternal   Boolean @default(false)
+  followRedirects Boolean @default(false)
+
+  isActive        Boolean  @default(true)
+  lastRunAt       DateTime?
+  nextRunAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([websiteId, frequency]) // one schedule per website per frequency
 }

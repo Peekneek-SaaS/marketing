@@ -1,7 +1,5 @@
 "use client";
 
-import React, { useState } from "react";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,20 +17,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Field, FieldError } from "@/components/ui/field";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { useTRPC } from "@/trpc/client";
+import { useRouter } from "next/navigation";
+import { useMutation } from "@tanstack/react-query";
 
 export const crawlModeSchema = z.enum(["exact", "path", "domain", "subdomain"]);
+export type crawlModeType = z.infer<typeof crawlModeSchema>;
 export const checkUrlFormSchema = z.object({
   url: z.url().min(4, "Atleast 4 Characters"),
   crawlMode: crawlModeSchema,
 });
 export type CheckUrlForm = z.infer<typeof checkUrlFormSchema>;
-
-type crawlModesTypes = "exact" | "domain";
 
 const crawlModeItems = [
   {
@@ -54,6 +49,9 @@ const crawlModeItems = [
 ];
 
 const TextArea = () => {
+  const trpc = useTRPC();
+  const router = useRouter();
+
   const form = useForm<CheckUrlForm>({
     resolver: zodResolver(checkUrlFormSchema),
     defaultValues: {
@@ -61,11 +59,29 @@ const TextArea = () => {
       crawlMode: "exact",
     },
   });
+
+  const startCrawl = useMutation(
+    trpc.crawl.start.mutationOptions({
+      onSuccess: (result) => {
+        form.resetField("url");
+        router.push(`/results/${result.crawlId}`);
+      },
+      onError: (err) => {
+        toast.error(err.message);
+      },
+    }),
+  );
+
   const url = form.watch("url");
   const urlOk = checkUrlFormSchema.shape.url.safeParse(url ?? "").success;
+
   function onSubmit(data: CheckUrlForm) {
-    toast(`${data.url + data.crawlMode}`);
-    form.reset();
+    startCrawl.mutate({
+      url: data.url,
+      mode: data.crawlMode,
+      checkExternal: false,
+      followRedirects: false,
+    });
   }
   return (
     <div className="w-full max-w-xl space-y-4 bg-card border rounded-lg p-2">
@@ -114,9 +130,12 @@ const TextArea = () => {
             )}
           />
 
-          <Button type="submit" disabled={!urlOk}>
+          <Button
+            type="submit"
+            disabled={!urlOk || startCrawl.isPending}
+          >
             <SearchIcon className="size-3" />
-            Check
+            {startCrawl.isPending ? "Starting…" : "Check"}
           </Button>
         </div>
       </form>

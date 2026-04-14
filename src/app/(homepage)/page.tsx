@@ -20,7 +20,7 @@ export default function Page() {
         <div className="flex flex-col gap-4 items-center justify-center">
           <h1 className="text-4xl md:text-5xl font-bold text-foreground text-center max-w-2xl leading-tight">
             Find{" "}
-            <span className="bg-rose-500 px-1.5 py-1 rounded-lg line-through text-white dark:text-black">
+            <span className="italic  bg-rose-500 px-1.5 py-1 rounded-lg line-through text-white dark:text-black">
               broken links
             </span>{" "}
             before your visitors do
